@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var Book = require('../things/book');
 
 /* GET books. */
 router.get('/', function(req, res, next) {

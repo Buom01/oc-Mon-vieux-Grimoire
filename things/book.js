@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../mongoose');
 
 const bookRatingSchema = mongoose.Schema({
   userId: {type: String, required: true},
