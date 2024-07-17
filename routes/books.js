@@ -105,14 +105,13 @@ router.put(
   auth,
   upload.single('image'),
   getId,
-  handleBookImageCreation,
   async function(req, res, next)
   {
     const {title, author, year, genre} = req.body.book ? JSON.parse(req.body.book) : req.body;
 
     try
     {
-      const {modifiedCount} = await Book.updateOne(
+      const {matchedCount} = await Book.updateOne(
         {
           _id: req.id ?? null,
           userId: req.auth.userId
@@ -122,8 +121,8 @@ router.put(
           imageUrl: req.imageUrl
         }
       );
-      if (modifiedCount == 1)
-        res.status(200).json({message: 'Livre modifié !'});
+      if (matchedCount == 1)
+        return next();
       else
         res.status(403).json({message: `Vous n'avez pas le droit de modifier ce livre`});
     }
@@ -132,6 +131,10 @@ router.put(
       console.error(error);
       res.status(400).json({message: error.message})
     };
+  },
+  handleBookImageCreation,
+  (req, res, next) => {
+    res.status(200).json({message: 'Livre modifié !'});
   }
 );
 
@@ -145,7 +148,10 @@ router.delete(
   {
     try
     {
-      const {deletedCount} = await Book.deleteOne({_id: req.id ?? null});
+      const {deletedCount} = await Book.deleteOne({
+        _id: req.id ?? null,
+        userId: req.auth.userId
+      });
 
       if (deletedCount == 1)
         res.status(200).json({message: 'Livre supprimé !'});
