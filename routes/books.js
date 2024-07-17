@@ -95,7 +95,13 @@ router.post(
     catch(error)
     {
       console.error(error);
-      res.status(400).json({message: error.message})
+      await handleBookImageDestruction(
+        req,
+        res,
+        () => {
+          res.status(400).json({message: error.message})
+        }
+      )
     };
   }
 );
