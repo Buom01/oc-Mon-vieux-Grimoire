@@ -18,7 +18,18 @@ async function handleBookImageCreation(req, res, next)
   try
   {
     const {imageRelativePath, imageUrl} = pathFor(req.id);
-    await sharp(req.file.buffer).rotate().webp({quality: 85}).toFile(imageRelativePath);
+    await sharp(req.file.buffer)  // @Présente-moi
+      .rotate()
+      .resize(
+        972,
+        568,
+        {
+          fit: 'outside',
+          withoutEnlargement: true
+        }
+      )
+      .webp({quality: 85})
+      .toFile(imageRelativePath);
 
     req.imageUrl = imageUrl;
     next();
