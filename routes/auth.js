@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require('../things/user');
-const {jwtToken} = require('../config');
+const {jwtSecretKey} = require('../config');
 
 router.post(
   '/signup',
@@ -47,7 +47,7 @@ router.post(
         userId: user._id,
         token: jwt.sign(
           {userId: user._id},
-          jwtToken,
+          jwtSecretKey,
           {expiresIn: '24h'}
         )
       });

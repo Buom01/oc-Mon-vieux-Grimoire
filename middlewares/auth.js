@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const {jwtToken} = require('../config');
+const {jwtSecretKey} = require('../config');
 
 const auth = (req, res, next) => {
    try {
@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
         if (authType !== 'Bearer')
             throw new Error('Unsupported authentication method');
 
-       const decodedToken = jwt.verify(token, jwtToken);
+       const decodedToken = jwt.verify(token, jwtSecretKey);
        const userId = decodedToken.userId;
        req.auth = {
            userId: userId
