@@ -6,7 +6,8 @@ const Book = require('../things/book');
 const upload = multer();
 const {auth} = require('../middlewares/auth');
 const createId = require('../middlewares/createId');
-const handleBookImage = require('../middlewares/handleBookImage');
+const getId = require('../middlewares/getId');
+const {handleBookImageCreation, handleBookImageDestruction} = require('../middlewares/handleBookImage');
 
 
 router.get(
@@ -64,7 +65,7 @@ router.post(
   auth,
   upload.single('image'),
   createId,
-  handleBookImage,
+  handleBookImageCreation,
   async function(req, res, next)
   {
     try
@@ -101,11 +102,8 @@ router.put(
   '/:id',
   auth,
   upload.single('image'),
-  (req, res, next) => {
-    req.id = req.params.id;
-    next();
-  },
-  handleBookImage,
+  getId,
+  handleBookImageCreation,
   async function(req, res, next)
   {
     const {title, author, year, genre} = req.body.book ? JSON.parse(req.body.book) : req.body;
@@ -120,6 +118,31 @@ router.put(
         }
       );
       res.status(200).json({message: 'Livre modifié !'});
+    }
+    catch(error)
+    {
+      console.error(error);
+      res.status(400).json({message: error.message})
+    };
+  }
+);
+
+
+router.delete(
+  '/:id',
+  auth,
+  getId,
+  handleBookImageDestruction,
+  async function(req, res, next)
+  {
+    try
+    {
+      const {deletedCount} = await Book.deleteOne({_id: req.id ?? null});
+
+      if (deletedCount == 1)
+        res.status(200).json({message: 'Livre supprimé !'});
+      else
+        res.status(400).json({message: `Le livre n'a pas été supprimé`});
     }
     catch(error)
     {
