@@ -8,6 +8,7 @@ const {auth} = require('../middlewares/auth');
 const createId = require('../middlewares/createId');
 const getId = require('../middlewares/getId');
 const {handleBookImageCreation, handleBookImageDestruction} = require('../middlewares/handleBookImage');
+const getAverageRating = require('../middlewares/averageRating');
 
 
 router.get(
@@ -84,7 +85,8 @@ router.post(
         ratings: [{
           userId,
           grade: averageRating
-        }]
+        }],
+        averageRating
       });
       await book.save();
 
@@ -143,6 +145,56 @@ router.delete(
         res.status(200).json({message: 'Livre supprimé !'});
       else
         res.status(400).json({message: `Le livre n'a pas été supprimé`});
+    }
+    catch(error)
+    {
+      console.error(error);
+      res.status(400).json({message: error.message})
+    };
+  }
+);
+
+router.post(
+  '/:id/rating',
+  auth,
+  getId,
+  async function(req, res, next)
+  {
+    const {rating} = req.body;
+    const {userId} = req.auth; // @Présente-moi
+
+    try
+    {
+      // @Présente-moi
+      const doc = await Book.findById(req.id);
+
+      const userRating = {
+        userId,
+        grade: rating
+      };
+      const ratings = [...doc.ratings, userRating];
+      const averageRating = getAverageRating(ratings);
+
+      const {modifiedCount} = await Book.updateOne(
+        {$and: [{_id: req.id},{'ratings.userId': {'$ne': userId}}]},
+        {
+          $push: {
+            ratings: userRating
+          },
+          averageRating
+        }
+      );
+
+      if (modifiedCount == 1)
+      {
+        res.status(200).json({
+          ...doc._doc,
+          ratings,
+          averageRating
+        });
+      }
+      else
+        res.status(400).json({message: `La note n'a pas pu être ajoutée`});
     }
     catch(error)
     {

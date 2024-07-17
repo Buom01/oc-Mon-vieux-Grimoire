@@ -16,14 +16,4 @@ const bookSchema = mongoose.Schema({
   averageRating: { type: Number, required: true }
 });
 
-bookSchema.pre(
-  ['validate'],
-  function (next)
-  {
-    if (this.ratings)
-      this.averageRating = this.ratings.reduce((partialSum, {grade}) => (partialSum + grade), 0) / this.ratings.length;
-    next();
-  }
-);
-
 module.exports = mongoose.model('Book', bookSchema);
