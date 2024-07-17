@@ -1,6 +1,13 @@
-var express = require('express');
-var router = express.Router();
-var Book = require('../things/book');
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const Book = require('../things/book');
+
+const upload = multer();
+const {auth} = require('../middlewares/auth');
+const createId = require('../middlewares/createId');
+const handleBookImage = require('../middlewares/handleBookImage');
+
 
 router.get(
   '/',
@@ -9,6 +16,22 @@ router.get(
     try
     {
       res.json(await Book.find());
+    }
+    catch(error)
+    {
+      console.error(error);
+      res.status(400).json({message: error.message})
+    };
+  }
+);
+
+router.get(
+  '/bestrating',
+  async function(req, res, next)
+  {
+    try
+    {
+      res.json(await (Book.find().sort({averageRating: -1}).limit(3)));
     }
     catch(error)
     {
@@ -36,13 +59,67 @@ router.get(
   }
 );
 
-router.get(
-  '/bestrating',
+router.post(
+  '/',
+  auth,
+  upload.single('image'),
+  createId,
+  handleBookImage,
   async function(req, res, next)
   {
     try
     {
-      res.json(await (Book.find().sort({averageRating: -1}).limit(3)));
+      const userId = req.auth.userId;
+      const {title, author, year, genre, averageRating} = JSON.parse(req.body.book);
+      
+      const book = new Book({
+        _id: req.id,
+        userId,
+        title,
+        author,
+        imageUrl: req.imageUrl,
+        year,
+        genre,
+        ratings: [{
+          userId,
+          grade: averageRating
+        }]
+      });
+      await book.save();
+
+      res.status(201).json({message: 'Livre crée !'});
+    }
+    catch(error)
+    {
+      console.error(error);
+      res.status(400).json({message: error.message})
+    };
+  }
+);
+
+router.put(
+  '/:id',
+  auth,
+  upload.single('image'),
+  (req, res, next) => {
+    req.id = req.params.id;
+    next();
+  },
+  handleBookImage,
+  async function(req, res, next)
+  {
+    const {title, author, year, genre} = req.body.book ? JSON.parse(req.body.book) : req.body;
+
+    try
+    {
+      await Book.updateOne(
+        {_id: req.id ?? null},
+        {
+          title, author, year, genre,
+          imageUrl: req.imageUrl
+        }
+      );
+      res.status(200).json({message: 'Livre modifié !'});
     }
     catch(error)
     {
