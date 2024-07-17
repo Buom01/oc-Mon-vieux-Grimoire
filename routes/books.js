@@ -112,14 +112,20 @@ router.put(
 
     try
     {
-      await Book.updateOne(
-        {_id: req.id ?? null},
+      const {modifiedCount} = await Book.updateOne(
+        {
+          _id: req.id ?? null,
+          userId: req.auth.userId
+        },
         {
           title, author, year, genre,
           imageUrl: req.imageUrl
         }
       );
-      res.status(200).json({message: 'Livre modifié !'});
+      if (modifiedCount == 1)
+        res.status(200).json({message: 'Livre modifié !'});
+      else
+        res.status(403).json({message: `Vous n'avez pas le droit de modifier ce livre`});
     }
     catch(error)
     {
