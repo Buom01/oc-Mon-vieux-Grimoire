@@ -4,7 +4,7 @@ const multer = require('multer');
 const Book = require('../things/book');
 
 const upload = multer();
-const {auth} = require('../middlewares/auth');
+const auth = require('../middlewares/auth');
 const createId = require('../middlewares/createId');
 const getId = require('../middlewares/getId');
 const {handleBookImageCreation, handleBookImageDestruction} = require('../middlewares/handleBookImage');

@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-
-const jwtToken = 'RANDOM_DEV_SECRET_KEY';
+const {jwtToken} = require('../config');
 
 const auth = (req, res, next) => {
    try {
@@ -19,4 +18,4 @@ const auth = (req, res, next) => {
    }
 };
 
-module.exports = {jwtToken, auth};
+module.exports = auth;
