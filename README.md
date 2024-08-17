@@ -1,8 +1,8 @@
 # Mon-vieux-Grimoire
 ## Installation
-`yarn` ou `npm i`
+`npm i`
 ## Lancement
-`yarn start` ou `npm run start`
+`npm run start`
 ## Usage
 L'application est préconfigurée avec des valeurs de démonstration pour faciliter les différentes évaluations.
 Son bon lancement est testable dans le navigateur : `http://localhost:4000/api/books`.
